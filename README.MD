@@ -33,7 +33,7 @@ cd identifier
 pip install -r requirements.txt
 ```
 
-4. **Adding Models**
+3. **Adding Models**
 Models are not included in this version, to create your own see whale-vision/identifier-training.
 The models should then be placed as:
 ```
@@ -46,7 +46,7 @@ src/models/pm_identification_flank_ind.csv
 src/models/pm_identification_fluke_ind.csv
 ```
 
-3. **Running the Server**
+4. **Running the Server**
 
 ```
 python src/websocket.py
