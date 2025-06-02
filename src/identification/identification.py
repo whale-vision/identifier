@@ -37,32 +37,44 @@ def create_average_identities(allIdentities):
 
     return averageIdentities
 
-
-def getIdentities(fileName: str):
-    allIdentities = load_identities(fileName)
-    averageIdentities = create_average_identities(allIdentities)
-
-    return averageIdentities
-
-
 class identifier:
     def __init__(self):
         self.identities = {
-            "flank": getIdentities(FLANK_MODEL),
-            "fluke": getIdentities(FLUKE_MODEL),
+            "flank": load_identities(FLANK_MODEL),
+            "fluke": load_identities(FLUKE_MODEL),
         }
+
+        self.calculateAverages()
+
+    def calculateAverages(self):
+        self.averageIdentities = {
+            "flank": create_average_identities(self.identities["flank"]),
+            "fluke": create_average_identities(self.identities["fluke"]),
+        }
+
+    def addIdentity(self, whale):
+        identity = whale["identity"]
+        type = whale["type"]
+        embedding = whale["embedding"]
+
+        print(f"Adding identity {identity} of type {type} with embedding {embedding}")
+        if identity not in self.identities[type]:
+            self.identities[type][identity] = []
+
+        self.identities[type][identity].append(embedding)
+
 
     def identify(self, whale):
         try:
-            features = whale["features"]
-            identities = self.identities[whale["type"]]
+            embedding = whale["embedding"]
+            identities = self.averageIdentities[whale["type"]]
 
             distances = [("Unknown", 1)]
 
             for name in identities.keys():
                 identity = identities[name]
 
-                distance = np.linalg.norm(np.array(identity) - np.array(features))
+                distance = np.linalg.norm(np.array(identity) - np.array(embedding))
                 distances.append((name, distance))
 
             distances.sort(key=lambda x: x[1])
@@ -85,8 +97,8 @@ class identityCreator:
         }
 
     def addImage(self, whale):
-        features = whale["features"]
-        self.identities[whale["type"]].append(features)
+        embedding = whale["embedding"]
+        self.identities[whale["type"]].append(embedding)
 
     def getIdentity(self):
         # get average position

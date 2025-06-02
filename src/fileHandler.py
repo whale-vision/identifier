@@ -24,11 +24,3 @@ async def saveWhaleIdentity(identity, directory, websocket):
         os.mkdir(newPath)
 
     shutil.copyfile(originalImage, newFile)
-
-    # save identity to json file
-    identityFile = newFile + ".json"
-        
-    with open(identityFile, "w") as f:
-        json.dump(identity, f, indent=4)
-
-

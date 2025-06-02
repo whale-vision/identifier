@@ -1,20 +1,27 @@
 import asyncio
-from featureExtraction.featureExtraction import getDevice
+from featureExtraction.featureExtraction import getDevice, getPath
 import websockets
 import json
 from fileHandler import saveWhaleIdentities 
-from main import identifyWhales
+from main import extractWhales, identifyWhales
 
-async def handle(websocket, _):
+async def handle(websocket):
     async for message in websocket:
         try: 
             content = json.loads(message)
+            print(f"received: {content["type"]}")
 
-            if (content["type"] == "identify"):
-                await websocket.send(f"starting on {getDevice()}")
+            if (content["type"] == "extract"):
+                await websocket.send(f"starting on {getDevice()} with {getPath()}")
                 
                 fileNames = content["fileNames"]
-                await identifyWhales(fileNames, websocket)
+                await extractWhales(fileNames, websocket)
+
+            elif (content["type"] == "identify"):
+                await websocket.send(f"starting on {getDevice()} with {getPath()}")
+
+                data = content["data"]
+                await identifyWhales(data, websocket)
 
             elif (content["type"] == "save"):
                 whaleIdentities = content["whaleIdentities"]
@@ -26,7 +33,9 @@ async def handle(websocket, _):
             print(e)
             await websocket.send(f"error: {e}")
 
-start_server = websockets.serve(handle, "localhost", 8765)
+async def main():
+    async with websockets.serve(handle, "localhost", 8765):
+        await asyncio.Future()  # Run forever
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -72,11 +72,18 @@ def cropImage(imagePath: str, predictor):
 class segmentor:
     def __init__(self):
         # load faster rcnn model segmentation.pth
-        model = fasterrcnn_resnet50_fpn(pretrained=True)
+        model = fasterrcnn_resnet50_fpn(weights=None, weights_backbone=None)
         in_features = model.roi_heads.box_predictor.cls_score.in_features
         model.roi_heads.box_predictor = FastRCNNPredictor(in_features, NUM_CLASSES) 
 
-        model.load_state_dict(torch.load(getPath()+"/src/models/segmentation.pth", map_location=torch.device(getDevice()), weights_only=True))
+        checkpoint_path = getPath() + "/src/models/segmentation.pth"
+        checkpoint = torch.load(
+            checkpoint_path, 
+            map_location=torch.device(getDevice()),
+            weights_only=True
+        )
+
+        model.load_state_dict(checkpoint)
         model.to(getDevice())
         model.eval()
 

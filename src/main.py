@@ -59,12 +59,16 @@ async def extractImages(images: list, websocket):
 
 async def identifyImages(images: list, websocket):
     imageIdentifier = identifier()
-    return await mapProgress(imageIdentifier.identify, images, "identifying", websocket)
+
+    [imageIdentifier.addIdentity(image) for image in images if "identity" in image]
+    imageIdentifier.calculateAverages()
+
+    otherImages = [image for image in images if not "identity" in image]
+
+    return await mapProgress(imageIdentifier.identify, otherImages, "identifying", websocket)
 
 
 def generateIdentificationFile(path: str):
-    print(path)
-
     whales = getListOfFiles(path)
 
     whales = segmentImages(whales)
@@ -84,18 +88,24 @@ def generateIdentificationFile(path: str):
 
 
 
-async def identifyWhales(whales: list[str], websocket):
+async def extractWhales(whales: list[str], websocket):
     whaleSegmented = await segmentImages(whales, websocket)
     whaleExtracted = await extractImages(whaleSegmented, websocket)
-    whaleIdentities = await identifyImages(whaleExtracted, websocket)
 
-    for whale in whaleIdentities:
-        await websocket.send(json.dumps(whale))
+    await websocket.send(json.dumps([{
+            "path": whale["path"],
+            "type": whale["type"],
+            "embedding": whale["embedding"]
+        } for whale in whaleExtracted]))
 
 
-# identifyWhales(["G:\Whale Stuff\Screenshot 2023-02-05 012942.png"])
+async def identifyWhales(whales, websocket):
+    whaleIdentified = await identifyImages(whales, websocket)
 
-# listOfFile = os.listdir("G:\Whale Stuff\data\Pm\Pm_individuals")
-# listOfFile = list(map(lambda file: os.path.join("G:\Whale Stuff\data\Pm\Pm_individuals", file), listOfFile))
 
-# mapProgress(generateIdentificationFile, listOfFile, "NEW WHALE")
+    await websocket.send(json.dumps([{
+            "path": whale["path"],
+            "identities": whale["distances"]
+        } for whale in whaleIdentified]))
+
+
