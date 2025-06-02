@@ -33,6 +33,19 @@ cd identifier
 pip install -r requirements.txt
 ```
 
+4. **Adding Models**
+Models are not included in this version, to create your own see whale-vision/identifier-training.
+The models should then be placed as:
+```
+src/models/segmentation.pth
+
+src/models/pm_flank.pth
+src/models/pm_fluke.pth
+
+src/models/pm_identification_flank_ind.csv
+src/models/pm_identification_fluke_ind.csv
+```
+
 3. **Running the Server**
 
 ```
