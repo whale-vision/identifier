@@ -137,4 +137,8 @@ The Mediterranean sperm whale (*Physeter macrocephalus*) is endangered, and effe
 If you use this backend in your research, please cite:
 
 > S. Fuller, S. Maggi, T. Kypraios, B. Mussi, and M. Pound, ‘Whale Vision: A Tool for Identifying Sperm Whales and Other Cetaceans by Their Flank or Fluke’, Mar. 07, 2025, Social Science Research Network, Rochester, NY: 5169298. doi: 10.2139/ssrn.5169298.
-%
+
+## License
+
+This project is licensed under the MIT License.  
+See the [LICENSE](../LICENSE) file for details.
