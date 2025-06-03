@@ -141,4 +141,4 @@ If you use this backend in your research, please cite:
 ## License
 
 This project is licensed under the MIT License.  
-See the [LICENSE](../LICENSE) file for details.
+See the [LICENSE](./LICENSE) file for details.
