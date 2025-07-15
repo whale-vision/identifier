@@ -145,7 +145,7 @@ class identityCreator:
     def saveIdentity(self, target: str, embeddings, whaleName: str):
         meanEmbedding = [whaleName] + list(np.mean(embeddings, axis=0))
 
-        fileName = f"../Identifier/src/models/identification_{target}.csv"
+        fileName = f"../identifier/src/models/identification_{target}.csv"
 
         with open(fileName, "a", newline="") as file:
             writer = csv.writer(file)
