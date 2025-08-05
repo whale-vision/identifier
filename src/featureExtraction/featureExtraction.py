@@ -24,20 +24,35 @@ class L2_norm(nn.Module):
         return torch.nn.functional.normalize(x, p=2, dim=1)
 
 
+# def loadModel(modelPath):
+#     model = models.resnet101(weights=None)
+
+#     model.fc = nn.Sequential(nn.Linear(
+#         in_features=model.fc.in_features, out_features=128, bias=False), L2_norm())
+#     model = nn.DataParallel(model)
+
+#     checkpoint = torch.load(modelPath)
+#     model.load_state_dict(checkpoint)
+
+#     model = model.to(getDevice())
+#     model.eval()
+
+#     return model
+
 def loadModel(modelPath):
     model = models.resnet101(weights=None)
-
     model.fc = nn.Sequential(nn.Linear(
-        in_features=model.fc.in_features, out_features=128, bias=False), L2_norm())
-    model = nn.DataParallel(model)
+        model.fc.in_features, 128, bias=False), L2_norm())
 
-    checkpoint = torch.load(modelPath)
-    model.load_state_dict(checkpoint)
+    # Load checkpoint and remove 'module.' prefixes
+    checkpoint = torch.load(modelPath, map_location=getDevice())
+    new_state_dict = {k.replace('module.', ''): v for k, v in checkpoint.items()}
+    model.load_state_dict(new_state_dict)
 
     model = model.to(getDevice())
     model.eval()
-
     return model
+
 
 
 preprocess = transforms.Compose([
@@ -73,8 +88,8 @@ class extractor:
             croppedImage = image.crop((box[0].item(), box[1].item(), box[2].item(), box[3].item()))
 
             image_tensor = preprocessImage(croppedImage).to(getDevice())
+            model = self.models[whale["type"]].to(getDevice())
 
-            model = self.models[whale["type"]]
             out = model(image_tensor).cpu().tolist()[0]
 
             whale.update({"embedding": out})

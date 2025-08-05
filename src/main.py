@@ -49,17 +49,13 @@ async def mapProgress(func, iterable, processName, websocket):
 
     return newIterable
 
-async def segmentImages(imagePaths: list, websocket):
-    imageSegmentor = segmentor()
+async def segmentImages(imagePaths: list, websocket, imageSegmentor = segmentor()):
     return await mapProgress(imageSegmentor.crop, imagePaths, "segmenting", websocket)
 
-async def extractImages(images: list, websocket):
-    imageExtractor = extractor()
+async def extractImages(images: list, websocket, imageExtractor = extractor()):
     return await mapProgress(imageExtractor.extract, images, "extracting", websocket)
 
-async def identifyImages(images: list, websocket):
-    imageIdentifier = identifier()
-
+async def identifyImages(images: list, websocket, imageIdentifier = identifier()):
     [imageIdentifier.addIdentity(image) for image in images if "identity" in image]
     imageIdentifier.calculateAverages()
 
@@ -71,7 +67,7 @@ async def identifyImages(images: list, websocket):
 def generateIdentificationFile(path: str):
     whales = getListOfFiles(path)
 
-    whales = segmentImages(whales)
+    whales = segmentImages(_, whales)
     whales = filter(lambda whale: whale != None, whales)
 
     whaleFlukes = filter(lambda whale: whale["type"] == "fluke", whales)
@@ -88,9 +84,9 @@ def generateIdentificationFile(path: str):
 
 
 
-async def extractWhales(whales: list[str], websocket):
-    whaleSegmented = await segmentImages(whales, websocket)
-    whaleExtracted = await extractImages(whaleSegmented, websocket)
+async def extractWhales(whales: list[str], websocket, imageSegmentor, imageExtractor):
+    whaleSegmented = await segmentImages(whales, websocket, imageSegmentor)
+    whaleExtracted = await extractImages(whaleSegmented, websocket, imageExtractor)
 
     await websocket.send(json.dumps([{
             "path": whale["path"],
@@ -99,9 +95,8 @@ async def extractWhales(whales: list[str], websocket):
         } for whale in whaleExtracted]))
 
 
-async def identifyWhales(whales, websocket):
-    whaleIdentified = await identifyImages(whales, websocket)
-
+async def identifyWhales(whales, websocket, imageIdentifier):
+    whaleIdentified = await identifyImages(whales, websocket, imageIdentifier)
 
     await websocket.send(json.dumps([{
             "path": whale["path"],
