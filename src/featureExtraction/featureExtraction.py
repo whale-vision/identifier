@@ -8,13 +8,13 @@ def getDevice():
     return "cuda:0" if torch.cuda.is_available() else "cpu"
 
 def getPath():
-    if os.path.exists("./assets/Identifier"):
-        return "./assets/Identifier"
+    if os.path.exists("./assets/identifier"):
+        return "./assets/identifier"
     
-    if os.path.exists("../Identifier"):
-        return "../Identifier"
+    if os.path.exists("../identifier"):
+        return "../identifier"
     
-    return "./resources/assets/Identifier"
+    return "./resources/assets/identifier"
 
 class L2_norm(nn.Module):
     def __init__(self):
